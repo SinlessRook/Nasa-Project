@@ -37,7 +37,7 @@ const LineChart = (props) => {
             },
             series: [
                 {
-                    name: 'CO Emissions',
+                    name: `${type} Emissions`,
                     type: 'line',
                     data: data[1], // CO emission values
                 },
