@@ -1,24 +1,25 @@
 import React from 'react';
+import LineChart from './LineChart';
 
-const CardWithChartImage = () => {
+const CardWithChartImage = (props) => {
+  const place = props.place
+   const type = props.type
   return (
     <div className="min-w-[900px] mx-[50px] p-6 bg-[rgba(0,0,0,0.75)] shadow-lg rounded-lg flex space-x-8">
         
       {/* Left side: Chart Image and Image */}
       <div className="w-1/2 flex flex-col space-y-4">
-        {/* Chart Image */}
-        <img
-          src="https://via.placeholder.com/300x200?text=Chart+Image"
-          alt="Chart"
-          className="w-full h-48 object-cover rounded-md"
-        />
-
-        {/* Additional Image */}
-        <img
+      <h1
           src="https://via.placeholder.com/150"
           alt="Sample"
-          className="w-full h-48 object-cover rounded-md"
-        />
+          className="w-full h-64 object-cover rounded-md flex items-start justify-center text-white gap-2 text-5xl font-bold uppercase"
+        >
+          {/* <img src="https://flagsapi.com/BE/flat/64.png/" alt="" /> */}
+          {place}</h1>
+        <LineChart country={place} type={type}/>
+
+        {/* Additional Image */}
+        
       </div>
 
       {/* Right side: Description */}

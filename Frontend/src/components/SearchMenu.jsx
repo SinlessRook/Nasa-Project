@@ -1,35 +1,40 @@
 import React, { useEffect, useRef, useState } from 'react';
-import axios from 'axios'; // Make sure to import axios
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { motion } from 'framer-motion';
 import 'swiper/css';
-import 'swiper/css/pagination'; // Import Swiper pagination styles
+import 'swiper/css/pagination'; 
 import CardWithChart from './ChartTile';
-import { EffectFade, Pagination } from 'swiper/modules'; // Import Pagination module
+import { EffectFade, Pagination } from 'swiper/modules';
+import { climateDesc, getCountries } from '../assets/Constants'; 
+import { s } from 'framer-motion/client';
 
 const SearchMenu = () => {
   const [place, setPlace] = useState('');
-  const data = ["India","China"]
+  const [data, setData] = useState([]);
+  const [valueCheck,setValueCheck]=useState('')
   const ref = useRef(null);
   const ref2 = useRef(null);
   const [clicked, setClicked] = useState(0);
 
-  // Scroll into view when place changes
+  useEffect(() => {
+    if (clicked > 0) {
+      ref2.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [clicked]);
+
   useEffect(() => {
     if (place !== '') {
       ref.current.scrollIntoView({ behavior: "smooth" });
+      setData(getCountries(place))
     } else {
       setClicked(0);
     }
   }, [place]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (clicked > 0) {
-        ref2.current.scrollIntoView({ behavior: "smooth" });
-      }}
-
-  }, [place]);
+  const fetchData = async () => {
+    const fetchedData = await fetchCountryData(place); // Use the imported function
+    setData(fetchedData); // Set the fetched data
+  };
 
   return (
     <>
@@ -49,13 +54,13 @@ const SearchMenu = () => {
           }}
           style={{ resize: 'none', overflow: 'hidden' }}
         />
-        {place !== '' &&
+        {place !== '' && (
           <>
             <br />
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 p-4">
-              {data.map((d) => (
+              {data.map((country) => (
                 <motion.div
-                  key={d}
+                  key={country}
                   initial={{ y: 10, opacity: 0.5 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   whileHover={{ cursor: 'pointer', scale: 1.1, y: -10 }}
@@ -63,14 +68,14 @@ const SearchMenu = () => {
                   className="max-w-sm rounded overflow-hidden shadow-lg bg-white m-4"
                 >
                   <div
-                    onClick={() => { setClicked((prev) => prev + 1); }}
+                    onClick={() => { 
+                      setValueCheck(country);
+                      setClicked((prev) => prev + 1); }}
                     className="px-6 py-4"
                   >
-                    <div className="font-bold text-xl mb-2">{d}</div>
+                    <div className="font-bold text-xl mb-2">{country}</div>
                     <p className="text-gray-700 text-base">
-                      This is an example of a simple card component in React with Tailwind
-                      CSS. You can add an image and some text here to describe the content
-                      of the card.
+                      {climateDesc(country)}
                     </p>
                   </div>
                   <div className="px-6 pt-4 pb-2">
@@ -88,9 +93,9 @@ const SearchMenu = () => {
               ))}
             </div>
           </>
-        }
+        )}
       </div>
-      {clicked > 0 &&
+      {clicked > 0 && (
         <>
           <div ref={ref2} />
           <br />
@@ -102,15 +107,15 @@ const SearchMenu = () => {
               renderBullet: (index, className) => {
                 return `<span class="${className} mx-1"> s</span>`;
               },
-            }} // Adding margin using Tailwind
-            modules={[EffectFade, Pagination]} // Include the Pagination module
+            }}
+            modules={[EffectFade, Pagination]}
           >
-            <SwiperSlide><CardWithChart /></SwiperSlide>
-            <SwiperSlide><CardWithChart /></SwiperSlide>
-            <SwiperSlide><CardWithChart /></SwiperSlide>
+            <SwiperSlide><CardWithChart place={valueCheck} type="DO"/></SwiperSlide>
+            <SwiperSlide><CardWithChart place={valueCheck} type="NOx" /></SwiperSlide>
+            <SwiperSlide><CardWithChart place={valueCheck} type="O3" /></SwiperSlide>
           </Swiper>
         </>
-      }
+      )}
     </>
   );
 }

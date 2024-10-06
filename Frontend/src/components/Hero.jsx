@@ -33,7 +33,7 @@ const Hero = (props) => {
         </motion.p>
         <motion.button
         initial={{opacity:0,scale:0}}
-        whileInView={{opacity:1,scale:1}}
+        whileInView={{opacity:1,scale:1,boxShadow: '0 0 20px #2596BE'}}
         transition={{duration:1.5,type:'spring',stiffness:150,delay:1.1}}
         onClick={()=>{setClicked((pre)=>pre+1)}}
         className='mt-8 px-6 py-2 text-2xl bg-white text-black rounded-full font-normal hover:bg-[#2596BE] hover:text-white hover:scale-105'>Learn More</motion.button>
@@ -42,7 +42,10 @@ const Hero = (props) => {
         <motion.div 
         initial={{rotateZ:360}}
         whileInView={{rotateZ:0}}
-        whileHover={{scale:1.1,cursor:'pointer'}}
+        whileHover={{scale:1.1,
+          cursor:'pointer',
+          boxShadow: '0 0 20px #2596BE',
+        }}
         // transition={{delay:0.5,repeat:Infinity,ease:'linear',duration:20}}
         className='scale-80 rounded-full overflow-hidden w-full flex mr-0'>
           <img src={HeroImg} alt="" />

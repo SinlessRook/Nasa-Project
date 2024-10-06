@@ -1,12 +1,12 @@
 import matplotlib
 matplotlib.use('Agg')  # Use a non-interactive backend
 import matplotlib.pyplot as plt
-
+from flask_cors import CORS
 from flask import Flask, request, jsonify, render_template, send_file
 import pandas as pd
 from io import BytesIO
 app = Flask(__name__)
-
+CORS(app)
 # Load the dataset
 file_path = 'dataset_nasa.xlsx'
 dfs = pd.read_excel(file_path, sheet_name=None)
@@ -25,8 +25,8 @@ def country():
     country = request.form.get('country').lower()  # Get country from form, convert to lowercase
     matched_countries = df1['country'].str.lower().str.startswith(country)  # Match with lowercase countries
     result = df1[matched_countries]['country'].unique()  # Get unique matched countries
-    # list(result)[:6]
-    return jsonify(["India"])  # Return maximum 6 matches as JSON
+    
+    return jsonify(list(result)[:6])  # Return maximum 6 matches as JSON
 
 
 @app.route('/co2_plot', methods=['POST'])

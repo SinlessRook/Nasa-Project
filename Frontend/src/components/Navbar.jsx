@@ -17,9 +17,9 @@ const Navbar = () => {
             animate={{opacity:1,y:0}}
             transition={{type:'spring'}}
             className='flex gap-12'>
-                <motion.h1 whileHover={{fontWeight:"bold",cursor:"pointer"}}>Home</motion.h1>
-                <motion.h1 whileHover={{fontWeight:"bold",cursor:"pointer"}}>About</motion.h1>
-                <motion.h1 whileHover={{fontWeight:"bold",cursor:"pointer"}}>Contact Us</motion.h1>
+                <motion.h1 whileHover={{fontWeight:"bold",cursor:"pointer",scale:1.05}}>Home</motion.h1>
+                <motion.h1 whileHover={{fontWeight:"bold",cursor:"pointer",scale:1.05}}>About</motion.h1>
+                <motion.h1 whileHover={{fontWeight:"bold",cursor:"pointer",scale:1.05}}>Contact Us</motion.h1>
             </motion.div>
             <motion.svg
             initial={{scale:0,opacity:0}}
