@@ -10,6 +10,20 @@ This project is a climate change story web application created as part of the NA
 - **Dynamic Data**: Fetch and display real-time data related to climate change.
 - **Responsive Design**: A mobile-friendly layout designed with Tailwind CSS for a seamless user experience.
 
+## Key Sections
+
+1. **Landing Section**: Presents a captivating introduction to the story, with visuals and concise messaging about climate change.
+
+   ![Landing Section](./screenshots/landing-section.png)
+
+2. **User-Friendly Search Section**: Provides users with an easy-to-navigate search interface for accessing data.
+
+   ![Search Section](./screenshots/search-section.png)
+
+3. **Insights Section with Graph**: Displays climate data insights with interactive graphs and charts.
+
+   ![Insights Section](./screenshots/insights-section.png)
+
 ## Tech Stack
 
 - **Frontend**:

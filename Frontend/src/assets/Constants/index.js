@@ -273,13 +273,12 @@ const getCountries = (start) => {
     const lst = [];
     const lowerCaseStart = start.toLowerCase(); // Convert start to lowercase once
 
-    console.log(`Searching for countries that start with: '${lowerCaseStart}'`); // Debug log
-    console.log(`Available countries: ${countries}`); // Debug log
+    
 
     for (let index = 0; index < countries.length; index++) {
         const element = countries[index].trim(); // Trim any extra spaces
 
-        console.log(`Checking country: '${element}'`); // Debug log
+
 
         // Check if the country starts with the provided input
         if (element.toLowerCase().startsWith(lowerCaseStart)) {
@@ -292,7 +291,6 @@ const getCountries = (start) => {
         }
     }
 
-    console.log(`Found countries: ${lst}`); // Debug log
     return lst;
 };
 
