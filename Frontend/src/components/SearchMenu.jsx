@@ -2,17 +2,21 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { motion } from 'framer-motion';
 import 'swiper/css';
-import 'swiper/css/pagination'; 
+import 'swiper/css/pagination';
+import 'swiper/css/navigation';
+import 'swiper/css/effect-fade';
 import CardWithChart from './ChartTile';
-import { EffectFade, Pagination } from 'swiper/modules';
-import { climateDesc, getCountries } from '../assets/Constants'; 
+import { EffectFade, Pagination, Navigation,Autoplay } from 'swiper/modules';
+import { climateDesc, getCountries } from '../assets/Constants';
+
+
 
 
 
 const SearchMenu = () => {
   const [place, setPlace] = useState('');
   const [data, setData] = useState([]);
-  const [valueCheck,setValueCheck]=useState('')
+  const [valueCheck, setValueCheck] = useState('')
   const ref = useRef(null);
   const ref2 = useRef(null);
   const [clicked, setClicked] = useState(0);
@@ -46,7 +50,7 @@ const SearchMenu = () => {
           whileInView={{ opacity: 1, scale: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 1.5, type: 'spring', stiffness: 150, delay: 0.2 }}
-          placeholder='Enter the city'
+          placeholder='Enter the Country'
           className='rounded-full border border-gray-300 p-2 w-1/2 font-medium text-lg px-4'
           rows="1"
           value={place}
@@ -69,9 +73,10 @@ const SearchMenu = () => {
                   className="max-w-sm rounded overflow-hidden shadow-lg bg-white m-4"
                 >
                   <div
-                    onClick={() => { 
+                    onClick={() => {
                       setValueCheck(country);
-                      setClicked((prev) => prev + 1); }}
+                      setClicked((prev) => prev + 1);
+                    }}
                     className="px-6 py-4"
                   >
                     <div className="font-bold text-xl mb-2">{country}</div>
@@ -107,12 +112,17 @@ const SearchMenu = () => {
               clickable: true,
               renderBullet: (index, className) => {
                 return `<span 
-                class="${className} mx-1 bg-white opacity-50 hover:opacity-100 rounded-full w-2 h-2"></span>`;
+      class="${className} mx-1 bg-white opacity-50 hover:opacity-100 rounded-full w-2 h-2"></span>`;
               },
             }}
-            modules={[EffectFade, Pagination]}
+            navigation={true}  
+            autoplay={{
+              delay: 6000,  
+              disableOnInteraction: false,  
+            }}
+            modules={[EffectFade, Pagination, Navigation, Autoplay]}  
           >
-            <SwiperSlide><CardWithChart place={valueCheck} type="CO"/></SwiperSlide>
+            <SwiperSlide><CardWithChart place={valueCheck} type="CO" /></SwiperSlide>
             <SwiperSlide><CardWithChart place={valueCheck} type="NOx" /></SwiperSlide>
             <SwiperSlide><CardWithChart place={valueCheck} type="O3" /></SwiperSlide>
           </Swiper>
