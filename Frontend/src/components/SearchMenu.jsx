@@ -119,6 +119,7 @@ const SearchMenu = () => {
             autoplay={{
               delay: 6000,  
               disableOnInteraction: false,  
+              pauseOnMouseEnter:true
             }}
             modules={[EffectFade, Pagination, Navigation, Autoplay]}  
           >
