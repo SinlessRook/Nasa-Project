@@ -6,7 +6,8 @@ import 'swiper/css/pagination';
 import CardWithChart from './ChartTile';
 import { EffectFade, Pagination } from 'swiper/modules';
 import { climateDesc, getCountries } from '../assets/Constants'; 
-import { s } from 'framer-motion/client';
+
+
 
 const SearchMenu = () => {
   const [place, setPlace] = useState('');
@@ -105,12 +106,13 @@ const SearchMenu = () => {
             pagination={{
               clickable: true,
               renderBullet: (index, className) => {
-                return `<span class="${className} mx-1"> s</span>`;
+                return `<span 
+                class="${className} mx-1 bg-white opacity-50 hover:opacity-100 rounded-full w-2 h-2"></span>`;
               },
             }}
             modules={[EffectFade, Pagination]}
           >
-            <SwiperSlide><CardWithChart place={valueCheck} type="DO"/></SwiperSlide>
+            <SwiperSlide><CardWithChart place={valueCheck} type="CO"/></SwiperSlide>
             <SwiperSlide><CardWithChart place={valueCheck} type="NOx" /></SwiperSlide>
             <SwiperSlide><CardWithChart place={valueCheck} type="O3" /></SwiperSlide>
           </Swiper>
