@@ -320,7 +320,7 @@ const climateDesc=(country)=>{
 export const climateChangeStory = async (data) => {
     console.log(data)
     try {
-        const response = await fetch('http://127.0.0.1:5000/generate-insights', {
+        const response = await fetch('https://nasa-project-erbl.onrender.com/generate-insights', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
