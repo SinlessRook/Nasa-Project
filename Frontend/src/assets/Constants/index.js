@@ -317,5 +317,23 @@ const climateDesc=(country)=>{
     return climateChangeDescriptions[country]
 }
 
+export const climateChangeStory = async (data) => {
+    console.log(data)
+    try {
+        const response = await fetch('http://127.0.0.1:5000/generate-insights', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        });
+        const data_1 = await response.json();
+        return data_1.insights;
+    } catch (error) {
+        console.log(error)
+        throw error;
+    }
+  };
+
 export { getCountries, LineChart_CO,climateDesc }
 

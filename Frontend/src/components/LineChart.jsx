@@ -53,7 +53,9 @@ const LineChart = (props) => {
         };
     }, [country]);
 
-    return <div ref={chartRef} style={{ width: '115%', height: '500px' }} />;
+    return <div ref={chartRef} 
+    className='w-full h-[300px] md:w-[750px] md:h-[500px]'
+/>;
 };
 
 export default LineChart;

@@ -43,7 +43,7 @@ const SearchMenu = () => {
 
   return (
     <>
-      <div className='flex flex-col items-center justify-center min-h-screen'>
+      <div className='flex flex-col items-center justify-center min-h-screen my-16 md:my-0'>
         <div ref={ref} />
         <motion.textarea
           initial={{ opacity: 0, scale: 0.5, y: 300 }}
@@ -51,7 +51,7 @@ const SearchMenu = () => {
           viewport={{ once: true }}
           transition={{ duration: 1.5, type: 'spring', stiffness: 150, delay: 0.2 }}
           placeholder='Enter the Country'
-          className='rounded-full border border-gray-300 p-2 w-1/2 font-medium text-lg px-4'
+          className='rounded-full border border-gray-300 p-2 w-full font-medium text-lg px-4 md:w-1/2'
           rows="1"
           value={place}
           onChange={(e) => {

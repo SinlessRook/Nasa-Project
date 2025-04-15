@@ -18,7 +18,7 @@ function App() {
     <>
         <div
         style={{backgroundImage: `url(${Mainbg})`,fontFamily:'Courier New'}}
-        className="w-full h-full text-3xl font-bold item-center">
+        className="w-full h-full text-3xl font-bold item-center overflow-hidden">
           <Navbar/>
           <Hero setClicked={setClicked}/>
           <div ref={ref}/>

@@ -1,243 +1,96 @@
-import matplotlib
-matplotlib.use('Agg')  # Use a non-interactive backend
-import matplotlib.pyplot as plt
-from flask_cors import CORS
-from flask import Flask, request, jsonify, render_template, send_file
 import pandas as pd
-from io import BytesIO
+import random
+from flask_cors import CORS
+from flask import Flask, request, jsonify
+
 app = Flask(__name__)
 CORS(app)
-# Load the dataset
-file_path = 'dataset_nasa.xlsx'
-dfs = pd.read_excel(file_path, sheet_name=None)
+# Function to load responses from CSV
+def load_responses():
+    df = pd.read_csv('responses.csv')
+    responses = {}
+    for category in df['Category'].unique():
+        responses[category] = df[df['Category'] == category]['Response'].tolist()
+    return responses
 
-# Access each DataFrame by its sheet name
-df1 = dfs['CO Population-Weighted (ppm)']
-df2 = dfs['VOCs Population-Weighted (ppm)']
-df3 = dfs['SO2 Population-Weighted (ppm)']
-
-@app.route('/')
-def home():
-    return render_template('index.html')
-
-@app.route('/country', methods=['POST'])
-def country():
-    country = request.form.get('country').lower()  # Get country from form, convert to lowercase
-    matched_countries = df1['country'].str.lower().str.startswith(country)  # Match with lowercase countries
-    result = df1[matched_countries]['country'].unique()  # Get unique matched countries
+# Function to generate insights
+def generate_insights(df, responses):
+    def convert_year_to_full_date(date_str):
+        try:
+            return pd.to_datetime(date_str)
+        except:
+            return pd.to_datetime(f"{date_str}-01-01")
     
-    return jsonify(list(result)[:6])  # Return maximum 6 matches as JSON
+    df["Date"] = df["Date"].apply(convert_year_to_full_date)
+    df = df.sort_values("Date").reset_index(drop=True)
 
+    min_row = df.loc[df["Value"].idxmin()]
+    max_row = df.loc[df["Value"].idxmax()]
+    start_row = df.iloc[0]
+    end_row = df.iloc[-1]
 
-@app.route('/co2_plot', methods=['POST'])
-def plot_graph():
-    country = request.form.get('country')
+    df["Delta"] = df["Value"].diff()
+    max_delta_idx = df["Delta"].idxmax()
+    min_delta_idx = df["Delta"].idxmin()
 
-    if country not in df1['country'].values:
-        return jsonify({"error": "Country not found in the dataset"}), 404
+    if max_delta_idx > 0:
+        max_increase_start = df.loc[max_delta_idx - 1]
+        max_increase_end = df.loc[max_delta_idx]
+    else:
+        max_increase_start = max_increase_end = None
+
+    if min_delta_idx > 0:
+        max_decrease_start = df.loc[min_delta_idx - 1]
+        max_decrease_end = df.loc[min_delta_idx]
+    else:
+        max_decrease_start = max_decrease_end = None
+
+    insights = []
+
+    # Randomly select responses for each category
+    insights.append(random.choice(responses['Lowest Value']).format(date=min_row['Date'].date().year, value=min_row['Value']))
+    insights.append(random.choice(responses['Highest Value']).format(date=max_row['Date'].date().year, value=max_row['Value']))
     
-    # Filter the row for the inputted country
-    country_data = df1[df1['country'] == country].iloc[0, 1:]  # Exclude the country column
+    if max_increase_start is not None:
+        insights.append(random.choice(responses['Significant Increase']).format(
+            start_date=max_increase_start['Date'].date().year,
+            end_date=max_increase_end['Date'].date().year,
+            start_value=max_increase_start['Value'],
+            end_value=max_increase_end['Value']
+        ))
     
-    # Convert the index (years) to strings
-    years = country_data.index.astype(str)
+    if max_decrease_start is not None:
+        insights.append(random.choice(responses['Significant Decrease']).format(
+            start_date=max_decrease_start['Date'].date().year,
+            end_date=max_decrease_end['Date'].date().year,
+            start_value=max_decrease_start['Value'],
+            end_value=max_decrease_end['Value']
+        ))
     
-    # Convert the data values to float, ensuring correct numeric format
-    values = country_data.values.astype(float)
-    
-    # Plotting
-    plt.figure(figsize=(10, 6))
-    plt.plot(years, values, marker='o', linestyle='-', color='b')
-    plt.title(f'Data for {country}', fontsize=16)
-    plt.xlabel('Year')
-    plt.ylabel('Values')
-    plt.grid(True)
-    
-    # Save plot to a BytesIO object
-    img = BytesIO()
-    plt.savefig(img, format='png')
-    img.seek(0)
-    plt.close()
-    
-    # Insights (Example: provide some basic description of the data)
-    insights = {
-        "Country": country,
-        "Years Covered": list(years),
-        "Max Value": values.max(),
-        "Min Value": values.min(),
-        "Average Value": values.mean()
-    }
+    trend = "upward" if end_row["Value"] > start_row["Value"] else "downward"
+    insights.append(random.choice(responses['Overall Trend']).format(
+        trend=trend,
+        start_date=start_row['Date'].date().year,
+        start_value=start_row['Value'],
+        end_date=end_row['Date'].date().year,
+        end_value=end_row['Value']
+    ))
 
-    # Return both the plot image and insights as JSON
-    return jsonify({
-        "image": "/carbon_image?country=" + country,
-        "insights": insights
-    })
+    return insights
 
-@app.route('/co2_img')
-def return_img():
-    country = request.form.get('country')
-    if country not in df1['country'].values:
-        return jsonify({"error": "Country not found in the dataset"}), 404
-    
-    country_data = df1[df1['country'] == country].iloc[0, 1:]
-    years = country_data.index.astype(str)  # Convert years to strings
-    values = country_data.values.astype(float)  # Ensure values are float
+# Endpoint to generate insights
+@app.route('/generate-insights', methods=['POST'])
+def generate_insights_api():
+    try:
+        data = request.get_json()
+        df = pd.DataFrame(data)
+        
+        responses = load_responses()  # Load the responses from the CSV
+        insights = generate_insights(df, responses)
+        
+        return jsonify({"insights": insights}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
-    # Plotting
-    plt.figure(figsize=(10, 6))
-    plt.plot(years, values, marker='o', linestyle='-', color='b')
-    plt.title(f'Data for {country}', fontsize=16)
-    plt.xlabel('Year')
-    plt.ylabel('Values')
-    plt.grid(True)
-
-    img = BytesIO()
-    plt.savefig(img, format='png')
-    img.seek(0)
-    plt.close()
-
-    return send_file(img, mimetype='image/png')
-
-@app.route('/voc_plot', methods=['POST'])
-def voc_plot():
-    country = request.form.get('country')
-
-    if country not in df2['country'].values:
-        return jsonify({"error": "Country not found in the dataset"}), 404
-    
-    # Filter the row for the inputted country
-    country_data = df1[df1['country'] == country].iloc[0, 1:]  # Exclude the country column
-    
-    # Convert the index (years) to strings
-    years = country_data.index.astype(str)
-    
-    # Convert the data values to float, ensuring correct numeric format
-    values = country_data.values.astype(float)
-    
-    # Plotting
-    plt.figure(figsize=(10, 6))
-    plt.plot(years, values, marker='o', linestyle='-', color='b')
-    plt.title(f'Data for {country}', fontsize=16)
-    plt.xlabel('Year')
-    plt.ylabel('VOC Population-Weighted (ppm)')
-    plt.grid(True)
-    
-    # Save plot to a BytesIO object
-    img = BytesIO()
-    plt.savefig(img, format='png')
-    img.seek(0)
-    plt.close()
-    
-    # Insights (Example: provide some basic description of the data)
-    insights = {
-        "Country": country,
-        "Years Covered": list(years),
-        "Max Value": values.max(),
-        "Min Value": values.min(),
-        "Average Value": values.mean()
-    }
-
-    # Return both the plot image and insights as JSON
-    return jsonify({
-        "image": "/voc_img?country=" + country,
-        "insights": insights
-    })
-
-@app.route('/voc_img')
-def voc_img():
-    country = request.form.get('country')
-    if country not in df2['country'].values:
-        return jsonify({"error": "Country not found in the dataset"}), 404
-    
-    country_data = df1[df1['country'] == country].iloc[0, 1:]
-    years = country_data.index.astype(str)  # Convert years to strings
-    values = country_data.values.astype(float)  # Ensure values are float
-
-    # Plotting
-    plt.figure(figsize=(8, 5))
-    plt.plot(years, values, marker='o', linestyle='-', color='b')
-    plt.title(f'Data for {country}', fontsize=16)
-    plt.xlabel('Year')
-    plt.ylabel('VOC Population-Weighted (ppm)')
-    plt.grid(True)
-
-    img = BytesIO()
-    plt.savefig(img, format='png')
-    img.seek(0)
-    plt.close()
-
-    return send_file(img, mimetype='image/png')
-
-@app.route('/so2_plot', methods=['POST'])
-def so2_plot():
-    country = request.form.get('country')
-
-    if country not in df3['country'].values:
-        return jsonify({"error": "Country not found in the dataset"}), 404
-    
-    # Filter the row for the inputted country
-    country_data = df1[df1['country'] == country].iloc[0, 1:]  # Exclude the country column
-    
-    # Convert the index (years) to strings
-    years = country_data.index.astype(str)
-    
-    # Convert the data values to float, ensuring correct numeric format
-    values = country_data.values.astype(float)
-    
-    # Plotting
-    plt.figure(figsize=(10, 6))
-    plt.plot(years, values, marker='o', linestyle='-', color='b')
-    plt.title(f'Data for {country}', fontsize=16)
-    plt.xlabel('Year')
-    plt.ylabel('SO2 Population-Weighted (ppm)')
-    plt.grid(True)
-    
-    # Save plot to a BytesIO object
-    img = BytesIO()
-    plt.savefig(img, format='png')
-    img.seek(0)
-    plt.close()
-    
-    # Insights (Example: provide some basic description of the data)
-    insights = {
-        "Country": country,
-        "Years Covered": list(years),
-        "Max Value": values.max(),
-        "Min Value": values.min(),
-        "Average Value": values.mean()
-    }
-
-    # Return both the plot image and insights as JSON
-    return jsonify({
-        "image": "/so2_img?country=" + country,
-        "insights": insights
-    })
-
-@app.route('/so2_img')
-def so2_img():
-    country = request.form.get('country')
-    if country not in df3['country'].values:
-        return jsonify({"error": "Country not found in the dataset"}), 404
-    
-    country_data = df1[df1['country'] == country].iloc[0, 1:]
-    years = country_data.index.astype(str)  # Convert years to strings
-    values = country_data.values.astype(float)  # Ensure values are float
-
-    # Plotting
-    plt.figure(figsize=(10, 6))
-    plt.plot(years, values, marker='o', linestyle='-', color='b')
-    plt.title(f'Data for {country}', fontsize=16)
-    plt.xlabel('Year')
-    plt.ylabel('SO2 Population-Weighted (ppm)')
-    plt.grid(True)
-
-    img = BytesIO()
-    plt.savefig(img, format='png')
-    img.seek(0)
-    plt.close()
-
-    return send_file(img, mimetype='image/png')
-
-if __name__ == '_main_':
-    app.run(debug=True,threaded=False)
+if __name__ == '__main__':
+    app.run(debug=True)
