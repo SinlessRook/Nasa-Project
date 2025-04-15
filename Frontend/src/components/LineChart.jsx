@@ -7,7 +7,6 @@ import { m } from 'framer-motion';
 const LineChart = (props) => {
     const country = props.country
     const type =props.type
-    console.log(country,type)
     let data;
     data = LineChart_CO(country,type);
     const chartRef = useRef(null);

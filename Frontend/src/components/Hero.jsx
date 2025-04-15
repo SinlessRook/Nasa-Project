@@ -11,8 +11,8 @@ const Hero = (props) => {
     whileInView={{opacity:0.7,scale:1}}
     transition={{duration:0.9,type:'spring',delay:0.1}}
     viewport={{once:true}}
-    className='bg-black opacity-50 w-screen my-16 px-4 py-2 md:h-[550px] md:my-4 md:px-32 md:py-64 text-white flex items-center rounded-2xl gap-20'>
-      <div className='w-screen md:1/2'>
+    className='bg-black opacity-50 w-full my-16 mx-4 px-4 py-2 md:h-[550px] md:my-4 md:px-32 md:py-64 text-white flex items-center rounded-2xl gap-20'>
+      <div className='w-screen md:w-1/2'>
         <motion.h1 
         style={{fontFamily:'Courier New'}}
         initial={{opacity:0}}

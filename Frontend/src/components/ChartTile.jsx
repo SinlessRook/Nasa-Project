@@ -13,7 +13,6 @@ const CardWithChartImage = (props) => {
       try {
         // Assuming LineChart_CO is defined and returns the data
         let data = await LineChart_CO(place, type);
-        console.log(data)
         // Convert data into the correct format
         const years=data[0]
         const values=data[1]
@@ -27,11 +26,9 @@ const CardWithChartImage = (props) => {
         }));
         // Fetch climate change insights
         const insights = await climateChangeStory(data);
-        console.log(data)
         // Set the insights to state
         setdesc(insights);
       } catch (e) {
-        console.log(e);
       } finally {
         setloaded(true);
       }
@@ -43,12 +40,11 @@ const CardWithChartImage = (props) => {
   // You can log the desc state after it is updated
   useEffect(() => {
     if (loaded) {
-      console.log(desc);
     }
   }, [desc, loaded]); // Logs desc once it's loaded
   return (
     <>
-    {!loaded?<div>Loading....</div>:<>
+    {!loaded?<div className='text-white text-2xl font-bold flex items-center justify-center w-screen bg-black opacity-50 min-h-[400px]'>Loading....</div>:<>
       <div className="md:min-w-[900px] md:mx-[50px] p-6 bg-[rgba(0,0,0,0.75)] shadow-lg rounded-lg flex flex-col md:flex-row space-x-8">
         
         {/* Left side: Chart Image and Image */}
